@@ -1,3 +1,10 @@
+# --------------- PACKAGE TEMPLATE ---------------------------
+# [START] DO NOT MODIFY THESE LINES
+# --> More info on everywhere_dev_tools/gitignore-files/README.md
+# ------------------------------------------------------------
+# Signing credentials
+signing.gradle
+
 # Miscellaneous
 *.class
 *.log
@@ -8,7 +15,6 @@
 .buildlog/
 .history
 .svn/
-migrate_working_dir/
 
 # IntelliJ related
 *.iml
@@ -16,15 +22,27 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
 # Flutter/Dart/Pub related
 # Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
 /pubspec.lock
 **/doc/api/
 .dart_tool/
 .packages
-build/
+/build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Flutter generated files (Freezed / Riverpod / dart_json_mapper / slang ...)
+*.freezed.dart
+*.g.dart
+
+# linux/web/macos : those platforms are not targeted
+linux/
+web/
+macos/
+
+# ------------------------------------------------------------
+# [END] DO NOT MODIFY THESE LINES
+# ------------------------------------------------------------
+
+# Files that are specific to this project can be written below
