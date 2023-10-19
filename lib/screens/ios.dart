@@ -39,18 +39,6 @@ class IosBarcodeScanner extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(appBarTitle ?? kScanPageTitle),
-        centerTitle: centerTitle,
-        leading: IconButton(
-          onPressed: () {
-            /// send close event to web-view
-            controller.postWebMessage(json.encode({"event": "close"}));
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.arrow_back_ios),
-        ),
-      ),
       body: FutureBuilder<bool>(
           future: initPlatformState(
             controller: controller,
