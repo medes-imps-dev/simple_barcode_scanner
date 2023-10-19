@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,7 +5,7 @@ import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:simple_barcode_scanner/constant.dart';
 import 'package:simple_barcode_scanner/enum.dart';
-import 'package:webview_windows/webview_windows.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class IosBarcodeScanner extends StatelessWidget {
   final String lineColor;
@@ -30,7 +29,7 @@ class IosBarcodeScanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    WebviewController controller = WebviewController();
+    WebViewController controller = WebViewController();
     bool isPermissionGranted = false;
 
     _checkCameraPermission().then((granted) {
@@ -45,16 +44,8 @@ class IosBarcodeScanner extends StatelessWidget {
           ),
           builder: (context, snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
-              return Webview(
-                controller,
-                permissionRequested: (url, permissionKind, isUserInitiated) =>
-                    _onPermissionRequested(
-                  url: url,
-                  kind: permissionKind,
-                  isUserInitiated: isUserInitiated,
-                  context: context,
-                  isPermissionGranted: isPermissionGranted,
-                ),
+              return WebViewWidget(
+                controller: controller,
               );
             } else if (snapshot.hasError) {
               return Center(
@@ -76,61 +67,21 @@ class IosBarcodeScanner extends StatelessWidget {
     return await Permission.camera.status.isGranted;
   }
 
-  Future<WebviewPermissionDecision> _onPermissionRequested(
-      {required String url,
-      required WebviewPermissionKind kind,
-      required bool isUserInitiated,
-      required BuildContext context,
-      required bool isPermissionGranted}) async {
-    final WebviewPermissionDecision? decision;
-    if (!isPermissionGranted) {
-      decision = await showDialog<WebviewPermissionDecision>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('Permission requested'),
-          content:
-              Text('\'${kind.name}\' permission is require to scan qr/barcode'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context, WebviewPermissionDecision.deny);
-                isPermissionGranted = false;
-              },
-              child: const Text('Deny'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context, WebviewPermissionDecision.allow);
-                isPermissionGranted = true;
-              },
-              child: const Text('Allow'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      decision = WebviewPermissionDecision.allow;
-    }
-
-    return decision ?? WebviewPermissionDecision.none;
-  }
-
-  String getAssetFileUrl({required String asset}) {
+  Uri getAssetFileUrl({required String asset}) {
     final assetsDirectory = p.join(p.dirname(Platform.resolvedExecutable),
         'data', 'flutter_assets', asset);
-    return Uri.file(assetsDirectory).toString();
+    return Uri.file(assetsDirectory);
   }
 
   Future<bool> initPlatformState(
-      {required WebviewController controller}) async {
+      {required WebViewController controller}) async {
     String? barcodeNumber;
 
     try {
-      await controller.initialize();
-      await controller
-          .loadUrl(getAssetFileUrl(asset: PackageConstant.barcodeFilePath));
+      await controller.loadRequest(getAssetFileUrl(asset: 'packages/simple_barcode_scanner/assets/barcode.html'));
 
-      /// Listen to web to receive barcode
+      // OLD CODE (With library webview_windows)
+      /* /// Listen to web to receive barcode
       controller.webMessage.listen((event) {
         if (event['methodName'] == "successCallback") {
           if (event['data'] is String &&
@@ -140,7 +91,7 @@ class IosBarcodeScanner extends StatelessWidget {
             onScanned(barcodeNumber!);
           }
         }
-      });
+      }); */
     } catch (e) {
       rethrow;
     }
