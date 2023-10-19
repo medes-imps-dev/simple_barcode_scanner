@@ -1,3 +1,10 @@
+# -------------------- APP TEMPLATE --------------------------
+# [START] DO NOT MODIFY THESE LINES
+# --> More info on everywhere_dev_tools/gitignore-files/README.md
+# ------------------------------------------------------------
+# Signing credentials
+signing.gradle
+
 # Miscellaneous
 *.class
 *.log
@@ -10,16 +17,15 @@
 .svn/
 migrate_working_dir/
 
+#Firebase
+/ios/Runner/GoogleService-Info.plist
+/android/app/google-services.json
+
 # IntelliJ related
 *.iml
 *.ipr
 *.iws
 .idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -32,16 +38,45 @@ migrate_working_dir/
 .pub/
 /build/
 
-# Web related
-lib/generated_plugin_registrant.dart
+# Flutter generated files (Freezed / Riverpod / dart_json_mapper / slang ...)
+*.freezed.dart
+*.g.dart
+
+# linux/web/macos : those platforms are not targeted
+linux/
+web/
+macos/
+
+# web related
+/lib/generated_plugin_registrant.dart
+
+# android related
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+#ios related
+/ios/build
+ios/Runner.xcodeproj/project.pbxproj
+ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
+
+# windows related
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugins.cmake
+windows/flutter/ephemeral/.plugin_symlinks/openpgp
+windows/flutter/ephemeral/.plugin_symlinks/path_provider_windows
+windows/flutter/CMakeLists.txt
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugin_registrant.h
+windows/flutter/generated_plugins.cmake
 
 # Symbolication related
 app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+# ------------------------------------------------------------
+# [END] DO NOT MODIFY THESE LINES
+# ------------------------------------------------------------
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Files that are specific to this project can be written below
