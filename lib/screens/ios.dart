@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:simple_barcode_scanner/constant.dart';
 import 'package:simple_barcode_scanner/enum.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -30,11 +29,9 @@ class IosBarcodeScanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WebViewController controller = WebViewController();
-    bool isPermissionGranted = false;
 
     _checkCameraPermission().then((granted) {
       debugPrint("Permission is $granted");
-      isPermissionGranted = granted;
     });
 
     return Scaffold(
@@ -75,13 +72,13 @@ class IosBarcodeScanner extends StatelessWidget {
 
   Future<bool> initPlatformState(
       {required WebViewController controller}) async {
-    String? barcodeNumber;
-
     try {
-      await controller.loadRequest(getAssetFileUrl(asset: 'packages/simple_barcode_scanner/assets/barcode.html'));
+      await controller.loadRequest(getAssetFileUrl(
+          asset: 'packages/simple_barcode_scanner/assets/barcode.html'));
 
       // OLD CODE (With library webview_windows)
       /* /// Listen to web to receive barcode
+      String? barcodeNumber;
       controller.webMessage.listen((event) {
         if (event['methodName'] == "successCallback") {
           if (event['data'] is String &&
