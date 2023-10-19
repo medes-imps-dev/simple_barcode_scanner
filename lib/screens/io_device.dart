@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:simple_barcode_scanner/enum.dart';
+import 'package:simple_barcode_scanner/screens/ios.dart';
 import 'package:simple_barcode_scanner/screens/window.dart';
 
 /// Barcode scanner for mobile and desktop devices
@@ -30,6 +31,16 @@ class BarcodeScanner extends StatelessWidget {
     if (Platform.isWindows) {
       ///Get Window barcode Scanner UI
       return WindowBarcodeScanner(
+        lineColor: lineColor,
+        cancelButtonText: cancelButtonText,
+        isShowFlashIcon: isShowFlashIcon,
+        scanType: scanType,
+        onScanned: onScanned,
+        appBarTitle: appBarTitle,
+        centerTitle: centerTitle,
+      );
+    } else if (Platform.isIOS) {
+      return IosBarcodeScanner(
         lineColor: lineColor,
         cancelButtonText: cancelButtonText,
         isShowFlashIcon: isShowFlashIcon,
