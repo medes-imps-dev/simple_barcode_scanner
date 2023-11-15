@@ -1,9 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:simple_barcode_scanner/enum.dart';
-import 'package:simple_barcode_scanner/screens/ios.dart';
 import 'package:simple_barcode_scanner/screens/window.dart';
 
 /// Barcode scanner for mobile and desktop devices
@@ -39,43 +37,8 @@ class BarcodeScanner extends StatelessWidget {
         appBarTitle: appBarTitle,
         centerTitle: centerTitle,
       );
-    } else if (Platform.isIOS) {
-      return IosBarcodeScanner(
-        lineColor: lineColor,
-        cancelButtonText: cancelButtonText,
-        isShowFlashIcon: isShowFlashIcon,
-        scanType: scanType,
-        onScanned: onScanned,
-        appBarTitle: appBarTitle,
-        centerTitle: centerTitle,
-      );
     } else {
-      /// Scan Android and ios barcode scanner with flutter_barcode_scanner
-      _scanBarcodeForMobileAndTabDevices();
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Text('Scan is not supported on iOS');
     }
-  }
-
-  _scanBarcodeForMobileAndTabDevices() async {
-    /// Scan barcode for mobile devices
-    ScanMode scanMode;
-    switch (scanType) {
-      case ScanType.barcode:
-        scanMode = ScanMode.BARCODE;
-        break;
-      case ScanType.qr:
-        scanMode = ScanMode.QR;
-        break;
-      default:
-        scanMode = ScanMode.DEFAULT;
-        break;
-    }
-    String barcode = await FlutterBarcodeScanner.scanBarcode(
-        lineColor, cancelButtonText, isShowFlashIcon, scanMode);
-    onScanned(barcode);
   }
 }
