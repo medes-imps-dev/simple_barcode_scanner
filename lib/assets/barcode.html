@@ -46,14 +46,15 @@
 
         };
         const config = {
-            fps: 10,
-            qrBox: {
-                width: 280,
-                height: 120,
-                aspectRatio: 1.7777778
+            fps: 24,
+            qrbox: {
+                width: 500,
+                height: 300,
             },
             videoConstraints: {
-                width: { ideal: 1280 },   
+                facingMode: "environment",
+                focusMode: { exact: "continuous" },
+                width: { ideal: 1280 },
                 height: { ideal: 720 }
             }
         };
