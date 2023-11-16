@@ -128,9 +128,9 @@ class WindowBarcodeScanner extends StatelessWidget {
       /// Listen to web to receive barcode
       controller.webMessage.listen((event) {
         if (event['methodName'] == "successCallback") {
+          print('hello');
           if (event['data'] is String &&
-              event['data'].isNotEmpty &&
-              barcodeNumber == null) {
+              event['data'].isNotEmpty) {
             barcodeNumber = event['data'];
             onScanned(barcodeNumber!);
           }
