@@ -24,7 +24,7 @@ dependencies:
   #Get assets path for window platform
   path: ^1.8.2
   #checking permissions
-  permission_handler: ^10.2.0
+  permission_handler: ^11.0.1
   webview_flutter: ^4.4.1
 
 dev_dependencies:
@@ -37,9 +37,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # To add assets to your package, add an assets section, like this:
   assets:
     - packages/simple_barcode_scanner/assets/barcode.html
     - packages/simple_barcode_scanner/assets/html5-qrcode.min.js
-
