@@ -47,7 +47,11 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
       appBarTitle: appBarTitle,
       centerTitle: centerTitle,
       onScanned: (res) {
-        print('Scan successful ! Barcode is : $res');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(res),
+          ),
+        );
       },
     );
   }
