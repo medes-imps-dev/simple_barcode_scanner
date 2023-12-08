@@ -39,24 +39,20 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Container(
-          height: 400,
-          width: 600,
-          child: BarcodeScanner(
-            lineColor: lineColor,
-            cancelButtonText: cancelButtonText,
-            isShowFlashIcon: isShowFlashIcon,
-            scanType: scanType,
-            appBarTitle: appBarTitle,
-            centerTitle: centerTitle,
-            onScanned: (res) {
-              print('Scan successful ! Barcode is : $res');
-            },
+    return BarcodeScanner(
+      lineColor: lineColor,
+      cancelButtonText: cancelButtonText,
+      isShowFlashIcon: isShowFlashIcon,
+      scanType: scanType,
+      appBarTitle: appBarTitle,
+      centerTitle: centerTitle,
+      onScanned: (res) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(res),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
