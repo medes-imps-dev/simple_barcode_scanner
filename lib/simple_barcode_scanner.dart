@@ -22,8 +22,11 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
   ///AppBar Title
   final String? appBarTitle;
 
-  ///center Title
+  ///Center Title
   final bool? centerTitle;
+
+  ///Function that will be triggered when scan is successful
+  final void Function(String barcode) onScanned;
 
   /// appBatTitle and centerTitle support in web and window only
   /// Remaining field support in only mobile devices
@@ -35,8 +38,9 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
     this.scanType = ScanType.barcode,
     this.appBarTitle,
     this.centerTitle,
+    required this.onScanned,
   }) : super(key: key);
-
+  
   @override
   Widget build(BuildContext context) {
     return BarcodeScanner(
@@ -46,13 +50,7 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
       scanType: scanType,
       appBarTitle: appBarTitle,
       centerTitle: centerTitle,
-      onScanned: (res) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(res),
-          ),
-        );
-      },
+      onScanned: onScanned,
     );
   }
 }
