@@ -2,7 +2,7 @@ PODS:
   - Flutter (1.0.0)
   - flutter_barcode_scanner (2.0.0):
     - Flutter
-  - permission_handler_apple (9.1.1):
+  - permission_handler_apple (9.3.0):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
@@ -24,10 +24,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
 SPEC CHECKSUMS:
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_barcode_scanner: 7a1144744c28dc0c57a8de7218ffe5ec59a9e4bf
-  permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
-  webview_flutter_wkwebview: b7e70ef1ddded7e69c796c7390ee74180182971f
+  permission_handler_apple: 036b856153a2b1f61f21030ff725f3e6fece2b78
+  webview_flutter_wkwebview: 2e2d318f21a5e036e2c3f26171342e95908bd60a
 
 PODFILE CHECKSUM: 7be2f5f74864d463a8ad433546ed1de7e0f29aef
 
