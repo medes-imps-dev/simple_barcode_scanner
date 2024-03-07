@@ -45,14 +45,20 @@ class WindowBarcodeScanner extends StatelessWidget {
         if (snapshot.hasData && snapshot.data != null) {
           return Webview(
             controller,
-            permissionRequested: (url, permissionKind, isUserInitiated) =>
-                _onPermissionRequested(
+            permissionRequested: (url, permissionKind, isUserInitiated) {
+              print('Permission granted: $isPermissionGranted');
+              print('Permission requested: $permissionKind');
+              print('Permission isUserInitiated: $isUserInitiated');
+              print('Permission url: $url');
+              
+              return _onPermissionRequested(
               url: url,
               kind: permissionKind,
               isUserInitiated: isUserInitiated,
               context: context,
               isPermissionGranted: isPermissionGranted,
-            ),
+            );
+            },
           );
         } else if (snapshot.hasError) {
           return Center(
