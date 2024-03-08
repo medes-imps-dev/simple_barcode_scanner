@@ -1,97 +1,175 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as p;
-import 'package:permission_handler/permission_handler.dart';
-import 'package:simple_barcode_scanner/enum.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
-class IosBarcodeScanner extends StatelessWidget {
-  final String lineColor;
-  final String cancelButtonText;
-  final bool isShowFlashIcon;
-  final ScanType scanType;
-  final Function(String) onScanned;
-  final String? appBarTitle;
-  final bool? centerTitle;
+class IosBarcodeScanner extends StatefulWidget {
+  const IosBarcodeScanner({super.key});
 
-  const IosBarcodeScanner({
-    Key? key,
-    required this.lineColor,
-    required this.cancelButtonText,
-    required this.isShowFlashIcon,
-    required this.scanType,
-    required this.onScanned,
-    this.appBarTitle,
-    this.centerTitle,
-  }) : super(key: key);
+  @override
+  _IosBarcodeScannerState createState() => _IosBarcodeScannerState();
+}
+
+class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
+  final MobileScannerController controller = MobileScannerController(
+    formats: const [BarcodeFormat.qrCode],
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    controller.start();
+  }
 
   @override
   Widget build(BuildContext context) {
-    WebViewController controller = WebViewController();
-
-    _checkCameraPermission().then((granted) {
-      debugPrint("Permission is $granted");
-    });
+    final scanWindow = Rect.fromCenter(
+      center: MediaQuery.sizeOf(context).center(Offset.zero),
+      width: 200,
+      height: 200,
+    );
 
     return Scaffold(
-      body: FutureBuilder<bool>(
-          future: initPlatformState(
-            controller: controller,
-          ),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              return WebViewWidget(
-                controller: controller,
-              );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  snapshot.error.toString(),
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('Scanner with Overlay Example app'),
+      ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Center(
+            child: MobileScanner(
+              fit: BoxFit.contain,
+              controller: controller,
+              scanWindow: scanWindow,
+              errorBuilder: (context, error, child) {
+                return Text(
+                  error.errorDetails?.message ?? 'Scanner error',
                   style: const TextStyle(color: Colors.red),
-                ),
+                );
+              },
+              overlayBuilder: (context, constraints) {
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: StreamBuilder<BarcodeCapture>(
+                        stream: controller.barcodes,
+                        builder: (context, snapshot) {
+                          switch (snapshot.connectionState) {
+                            case ConnectionState.none:
+                            case ConnectionState.waiting:
+                              return const Text('No barcode detected');
+                            case ConnectionState.active:
+                            case ConnectionState.done:
+                              return Text(snapshot
+                                      .data?.barcodes.firstOrNull?.rawValue ??
+                                  '');
+                          }
+                        }),
+                  ),
+                );
+              },
+            ),
+          ),
+          ValueListenableBuilder(
+            valueListenable: controller,
+            builder: (context, value, child) {
+              if (!value.isInitialized ||
+                  !value.isRunning ||
+                  value.error != null) {
+                return const SizedBox();
+              }
+
+              return CustomPaint(
+                painter: ScannerOverlay(scanWindow: scanWindow),
               );
-            }
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }),
+            },
+          ),
+          // TODO : Add buttons ?
+          /* Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ToggleFlashlightButton(controller: controller),
+                  SwitchCameraButton(controller: controller),
+                ],
+              ),
+            ),
+          ), */
+        ],
+      ),
     );
   }
 
-  /// Checks if camera permission has already been granted
-  Future<bool> _checkCameraPermission() async {
-    return await Permission.camera.status.isGranted;
+  @override
+  Future<void> dispose() async {
+    super.dispose();
+    controller.dispose();
+  }
+}
+
+class ScannerOverlay extends CustomPainter {
+  const ScannerOverlay({
+    required this.scanWindow,
+    this.borderRadius = 12.0,
+  });
+
+  final Rect scanWindow;
+  final double borderRadius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // TODO: use `Offset.zero & size` instead of Rect.largest
+    // we need to pass the size to the custom paint widget
+    final backgroundPath = Path()..addRect(Rect.largest);
+
+    final cutoutPath = Path()
+      ..addRRect(
+        RRect.fromRectAndCorners(
+          scanWindow,
+          topLeft: Radius.circular(borderRadius),
+          topRight: Radius.circular(borderRadius),
+          bottomLeft: Radius.circular(borderRadius),
+          bottomRight: Radius.circular(borderRadius),
+        ),
+      );
+
+    final backgroundPaint = Paint()
+      ..color = Colors.black.withOpacity(0.5)
+      ..style = PaintingStyle.fill
+      ..blendMode = BlendMode.dstOut;
+
+    final backgroundWithCutout = Path.combine(
+      PathOperation.difference,
+      backgroundPath,
+      cutoutPath,
+    );
+
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.0;
+
+    final borderRect = RRect.fromRectAndCorners(
+      scanWindow,
+      topLeft: Radius.circular(borderRadius),
+      topRight: Radius.circular(borderRadius),
+      bottomLeft: Radius.circular(borderRadius),
+      bottomRight: Radius.circular(borderRadius),
+    );
+
+    // First, draw the background,
+    // with a cutout area that is a bit larger than the scan window.
+    // Finally, draw the scan window itself.
+    canvas.drawPath(backgroundWithCutout, backgroundPaint);
+    canvas.drawRRect(borderRect, borderPaint);
   }
 
-  Uri getAssetFileUrl({required String asset}) {
-    final assetsDirectory = p.join(p.dirname(Platform.resolvedExecutable),
-        'data', 'flutter_assets', asset);
-    return Uri.file(assetsDirectory);
-  }
-
-  Future<bool> initPlatformState(
-      {required WebViewController controller}) async {
-    try {
-      await controller.loadRequest(getAssetFileUrl(
-          asset: 'packages/simple_barcode_scanner/assets/barcode.html'));
-
-      // OLD CODE (With library webview_windows)
-      /* /// Listen to web to receive barcode
-      String? barcodeNumber;
-      controller.webMessage.listen((event) {
-        if (event['methodName'] == "successCallback") {
-          if (event['data'] is String &&
-              event['data'].isNotEmpty &&
-              barcodeNumber == null) {
-            barcodeNumber = event['data'];
-            onScanned(barcodeNumber!);
-          }
-        }
-      }); */
-    } catch (e) {
-      rethrow;
-    }
-    return true;
+  @override
+  bool shouldRepaint(ScannerOverlay oldDelegate) {
+    return scanWindow != oldDelegate.scanWindow ||
+        borderRadius != oldDelegate.borderRadius;
   }
 }

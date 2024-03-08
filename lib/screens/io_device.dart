@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:simple_barcode_scanner/enum.dart';
+import 'package:simple_barcode_scanner/screens/ios.dart';
 import 'package:simple_barcode_scanner/screens/window.dart';
 
 /// Barcode scanner for mobile and desktop devices
@@ -37,8 +38,10 @@ class BarcodeScanner extends StatelessWidget {
         appBarTitle: appBarTitle,
         centerTitle: centerTitle,
       );
+    } else if (Platform.isIOS) {
+      return const IosBarcodeScanner();
     } else {
-      return const Text('Scan is not supported on iOS');
+      return const Text('Scan is not supported on this platform.');
     }
   }
 }
