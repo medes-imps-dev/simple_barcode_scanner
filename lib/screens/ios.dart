@@ -86,8 +86,8 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
   Widget build(BuildContext context) {
     final scanWindow = Rect.fromCenter(
       center: MediaQuery.sizeOf(context).center(Offset.zero),
-      width: 200,
-      height: 200,
+      width: 100,
+      height: 100,
     );
 
     return Scaffold(
@@ -114,7 +114,7 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
             child: Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              height: 100,
+              height: 50,
               color: Colors.black.withOpacity(0.4),
               child: StreamBuilder<BarcodeCapture>(
                   stream: controller.barcodes,
