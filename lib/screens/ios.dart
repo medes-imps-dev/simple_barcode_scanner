@@ -86,18 +86,18 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
   Widget build(BuildContext context) {
     final scanWindow = Rect.fromCenter(
       center: MediaQuery.sizeOf(context).center(Offset.zero),
-      width: 100,
-      height: 100,
+      width: 400,
+      height: 400,
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('With Scan window')),
+      appBar: AppBar(title: const Text('With Scan window 400')),
       backgroundColor: Colors.black,
       body: Stack(
         fit: StackFit.expand,
         children: [
           MobileScanner(
-            fit: BoxFit.contain,
+            fit: BoxFit.fitWidth,
             scanWindow: scanWindow,
             controller: controller,
             errorBuilder: (context, error, child) {
@@ -107,8 +107,8 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
               );
             },
           ),
-          // _buildBarcodeOverlay(),
-          // _buildScanWindow(scanWindow),
+          _buildBarcodeOverlay(),
+          _buildScanWindow(scanWindow),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
