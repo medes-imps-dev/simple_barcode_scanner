@@ -107,8 +107,8 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
               );
             },
           ),
-          _buildBarcodeOverlay(),
-          _buildScanWindow(scanWindow),
+          // _buildBarcodeOverlay(),
+          // _buildScanWindow(scanWindow),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
