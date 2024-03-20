@@ -7,6 +7,8 @@ class BarcodeScanner extends StatelessWidget {
   final bool isShowFlashIcon;
   final ScanType scanType;
   final Function(String) onScanned;
+  final double widthCamera;
+  final double heightCamera;
   final String? appBarTitle;
   final bool? centerTitle;
   const BarcodeScanner(
@@ -16,6 +18,8 @@ class BarcodeScanner extends StatelessWidget {
       this.isShowFlashIcon = false,
       this.scanType = ScanType.barcode,
       required this.onScanned,
+      required this.heightCamera,
+      required this.widthCamera,
       this.appBarTitle,
       this.centerTitle})
       : super(key: key);

@@ -3,6 +3,9 @@ import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 void main() {
   test('adds one to input values', () {
-    SimpleBarcodeScannerPage(onScanned: (barcode) => print(barcode));
+    SimpleBarcodeScannerPage(
+        widthCamera: 500,
+        heightCamera: 500,
+        onScanned: (barcode) => print(barcode));
   });
 }
