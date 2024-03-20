@@ -51,7 +51,7 @@ class BarcodeScanner extends StatelessWidget {
       return IosBarcodeScanner(
         widthCamera: widthCamera,
         heightCamera: heightCamera,
-        //onScanned: onScanned,
+        onScanned: onScanned,
       );
     } else {
       return const Text('Scan is not supported on this platform.');

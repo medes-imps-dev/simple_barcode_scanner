@@ -7,12 +7,16 @@ import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class IosBarcodeScanner extends StatefulWidget {
-  const IosBarcodeScanner({super.key,
-  required this.widthCamera,
-  required this.heightCamera,});
+  const IosBarcodeScanner({
+    super.key,
+    required this.widthCamera,
+    required this.heightCamera,
+    required this.onScanned,
+  });
 
   final double widthCamera;
   final double heightCamera;
+  final void Function(String) onScanned;
 
   @override
   State<IosBarcodeScanner> createState() => _IosBarcodeScannerState();
@@ -27,15 +31,14 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
 
     controller.start();
 
-    // Start listening to the barcode events.
-    final subscription = controller.barcodes.listen(_handleBarcode);
-
-    // Finally, start the scanner itself.
-    unawaited(controller.start());
+    controller.barcodes.listen(_handleBarcode);
   }
 
   void _handleBarcode(BarcodeCapture event) {
-    print('Barcode detected: ${event.barcodes.firstOrNull?.rawValue}');
+    final barcode = event.barcodes.firstOrNull?.rawValue;
+    if (barcode == null) return;
+    print('Barcode detected: $barcode');
+    widget.onScanned(barcode);
   }
 
   Widget _buildBarcodeOverlay() {
@@ -111,65 +114,60 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
       height: widthFullScreen * 0.8,
     );
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Listen to orientation')),
-      backgroundColor: Colors.black,
-      body: SizedBox(
-        height: widthFullScreen,
-        width: heightFullScreen,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            OrientationBuilder(builder: (context, orientation) {
-              final int quarterTurns;
-              DeviceOrientation.landscapeLeft;
-              if (orientation == Orientation.landscape) {
-                quarterTurns = 3;
-              } else {
-                quarterTurns = 0;
-              }
-              return RotatedBox(
-                quarterTurns: quarterTurns,
-                child: MobileScanner(
-                  scanWindow: scanWindow,
-                  controller: controller,
-                  errorBuilder: (context, error, child) {
-                    return Text(
-                      error.toString(),
-                      style: const TextStyle(color: Colors.red),
-                    );
-                  },
-                ),
-              );
-            }),
-            //_buildBarcodeOverlay(),
-            _buildScanWindow(scanWindow),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                alignment: Alignment.center,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                height: 50,
-                color: Colors.black.withOpacity(0.4),
-                child: StreamBuilder<BarcodeCapture>(
-                    stream: controller.barcodes,
-                    builder: (context, snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.none:
-                        case ConnectionState.waiting:
-                          return const Text('No barcode detected');
-                        case ConnectionState.active:
-                        case ConnectionState.done:
-                          return Text(
-                              snapshot.data?.barcodes.firstOrNull?.rawValue ??
-                                  '');
-                      }
-                    }),
+    return SizedBox(
+      height: widthFullScreen,
+      width: heightFullScreen,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          OrientationBuilder(builder: (context, orientation) {
+            final int quarterTurns;
+            DeviceOrientation.landscapeLeft;
+            if (orientation == Orientation.landscape) {
+              quarterTurns = 3;
+            } else {
+              quarterTurns = 0;
+            }
+            return RotatedBox(
+              quarterTurns: quarterTurns,
+              child: MobileScanner(
+                scanWindow: scanWindow,
+                controller: controller,
+                errorBuilder: (context, error, child) {
+                  return Text(
+                    error.toString(),
+                    style: const TextStyle(color: Colors.red),
+                  );
+                },
               ),
+            );
+          }),
+          //_buildBarcodeOverlay(),
+          _buildScanWindow(scanWindow),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              height: 50,
+              color: Colors.black.withOpacity(0.4),
+              child: StreamBuilder<BarcodeCapture>(
+                  stream: controller.barcodes,
+                  builder: (context, snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.none:
+                      case ConnectionState.waiting:
+                        return const Text('No barcode detected');
+                      case ConnectionState.active:
+                      case ConnectionState.done:
+                        return Text(
+                            snapshot.data?.barcodes.firstOrNull?.rawValue ??
+                                '');
+                    }
+                  }),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
