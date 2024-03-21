@@ -32,13 +32,12 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
 
     WidgetsBinding.instance.addObserver(this);
 
-    controller.start();
-    controller.start();
     initializeController();
   }
 
   void initializeController() {
     _subscription = controller.barcodes.listen(_handleBarcode);
+    controller.start();
     controller.start();
   }
 
@@ -69,9 +68,9 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
       case AppLifecycleState.inactive:
         print('App inactive');
         // Stop the scanner when the app is paused.
-        unawaited(_subscription?.cancel());
+        _subscription?.cancel();
         _subscription = null;
-        unawaited(controller.stop());
+        controller.stop();
     }
   }
 
