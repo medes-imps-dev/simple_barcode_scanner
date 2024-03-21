@@ -28,6 +28,12 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
   ///Function that will be triggered when scan is successful
   final void Function(String barcode) onScanned;
 
+  ///Height of camera
+  final double heightCamera;
+
+  ///Width of camera
+  final double widthCamera;
+
   /// appBatTitle and centerTitle support in web and window only
   /// Remaining field support in only mobile devices
   const SimpleBarcodeScannerPage({
@@ -39,8 +45,10 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
     this.appBarTitle,
     this.centerTitle,
     required this.onScanned,
+    required this.heightCamera,
+    required this.widthCamera,
   }) : super(key: key);
-  
+
   @override
   Widget build(BuildContext context) {
     return BarcodeScanner(
@@ -51,6 +59,8 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
       appBarTitle: appBarTitle,
       centerTitle: centerTitle,
       onScanned: onScanned,
+      heightCamera: heightCamera,
+      widthCamera: widthCamera,
     );
   }
 }

@@ -14,6 +14,8 @@ class BarcodeScanner extends StatelessWidget {
   final Function(String) onScanned;
   final String? appBarTitle;
   final bool? centerTitle;
+  final double widthCamera;
+  final double heightCamera;
   const BarcodeScanner({
     Key? key,
     required this.lineColor,
@@ -21,6 +23,8 @@ class BarcodeScanner extends StatelessWidget {
     required this.isShowFlashIcon,
     required this.scanType,
     required this.onScanned,
+    required this.heightCamera,
+    required this.widthCamera,
     this.appBarTitle,
     this.centerTitle,
   }) : super(key: key);
@@ -29,17 +33,26 @@ class BarcodeScanner extends StatelessWidget {
   Widget build(BuildContext context) {
     if (Platform.isWindows) {
       ///Get Window barcode Scanner UI
-      return WindowBarcodeScanner(
-        lineColor: lineColor,
-        cancelButtonText: cancelButtonText,
-        isShowFlashIcon: isShowFlashIcon,
-        scanType: scanType,
-        onScanned: onScanned,
-        appBarTitle: appBarTitle,
-        centerTitle: centerTitle,
+      return SizedBox(
+        height: 370, // Necessary for the scanner to work on windowsX
+        width: 600, // Necessary for the scanner to work on windows
+        child: WindowBarcodeScanner(
+          // TODO : Handle width and height
+          lineColor: lineColor,
+          cancelButtonText: cancelButtonText,
+          isShowFlashIcon: isShowFlashIcon,
+          scanType: scanType,
+          onScanned: onScanned,
+          appBarTitle: appBarTitle,
+          centerTitle: centerTitle,
+        ),
       );
     } else if (Platform.isIOS) {
-      return const IosBarcodeScanner();
+      return IosBarcodeScanner(
+        widthCamera: widthCamera,
+        heightCamera: heightCamera,
+        onScanned: onScanned,
+      );
     } else {
       return const Text('Scan is not supported on this platform.');
     }

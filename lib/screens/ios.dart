@@ -1,11 +1,22 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class IosBarcodeScanner extends StatefulWidget {
-  const IosBarcodeScanner({super.key});
+  const IosBarcodeScanner({
+    super.key,
+    required this.widthCamera,
+    required this.heightCamera,
+    required this.onScanned,
+  });
+
+  final double widthCamera;
+  final double heightCamera;
+  final void Function(String) onScanned;
 
   @override
   State<IosBarcodeScanner> createState() => _IosBarcodeScannerState();
@@ -19,6 +30,19 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
     super.initState();
 
     controller.start();
+    controller.start();
+
+    controller.barcodes.listen(_handleBarcode);
+  }
+
+  void _handleBarcode(BarcodeCapture event) {
+    final barcode = event.barcodes.firstOrNull?.rawValue;
+    if (barcode == null) {
+      print('barcode is null');
+      return;
+    }
+    print('Barcode detected: $barcode');
+    widget.onScanned(barcode);
   }
 
   Widget _buildBarcodeOverlay() {
@@ -84,37 +108,52 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
 
   @override
   Widget build(BuildContext context) {
+    const double widthFullScreen = 400;
+    const double heightFullScreen = 600;
+
     final scanWindow = Rect.fromCenter(
-      center: MediaQuery.sizeOf(context).center(Offset.zero),
-      width: 200,
-      height: 200,
+      center: const Offset(heightFullScreen / 2, widthFullScreen / 2),
+      // Size of the clear area where we can scan
+      width: heightFullScreen * 0.8,
+      height: widthFullScreen * 0.8,
     );
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('With Scan window')),
-      backgroundColor: Colors.black,
-      body: Stack(
+    return SizedBox(
+      height: widthFullScreen,
+      width: heightFullScreen,
+      child: Stack(
         fit: StackFit.expand,
         children: [
-          MobileScanner(
-            fit: BoxFit.contain,
-            scanWindow: scanWindow,
-            controller: controller,
-            errorBuilder: (context, error, child) {
-              return Text(
-                error.toString(),
-                style: const TextStyle(color: Colors.red),
-              );
-            },
-          ),
-          _buildBarcodeOverlay(),
+          OrientationBuilder(builder: (context, orientation) {
+            final int quarterTurns;
+            DeviceOrientation.landscapeLeft;
+            if (orientation == Orientation.landscape) {
+              quarterTurns = 3;
+            } else {
+              quarterTurns = 0;
+            }
+            return RotatedBox(
+              quarterTurns: quarterTurns,
+              child: MobileScanner(
+                scanWindow: scanWindow,
+                controller: controller,
+                errorBuilder: (context, error, child) {
+                  return Text(
+                    error.toString(),
+                    style: const TextStyle(color: Colors.red),
+                  );
+                },
+              ),
+            );
+          }),
+          //_buildBarcodeOverlay(),
           _buildScanWindow(scanWindow),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              height: 100,
+              height: 50,
               color: Colors.black.withOpacity(0.4),
               child: StreamBuilder<BarcodeCapture>(
                   stream: controller.barcodes,

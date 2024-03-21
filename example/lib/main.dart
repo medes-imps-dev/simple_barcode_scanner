@@ -43,6 +43,8 @@ class _HomePageState extends State<HomePage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => SimpleBarcodeScannerPage(
+                        widthCamera: 500,
+                        heightCamera: 500,
                         onScanned: (barcode) => print(barcode),
                       ),
                     ));
