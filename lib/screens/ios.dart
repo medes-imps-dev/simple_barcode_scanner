@@ -30,13 +30,17 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
     super.initState();
 
     controller.start();
+    controller.start();
 
     controller.barcodes.listen(_handleBarcode);
   }
 
   void _handleBarcode(BarcodeCapture event) {
     final barcode = event.barcodes.firstOrNull?.rawValue;
-    if (barcode == null) return;
+    if (barcode == null) {
+      print('barcode is null');
+      return;
+    }
     print('Barcode detected: $barcode');
     widget.onScanned(barcode);
   }
