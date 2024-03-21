@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -19,17 +20,26 @@ class IosBarcodeScanner extends StatefulWidget {
   State<IosBarcodeScanner> createState() => _IosBarcodeScannerState();
 }
 
-class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
+class _IosBarcodeScannerState extends State<IosBarcodeScanner>
+    with WidgetsBindingObserver {
   final MobileScannerController controller = MobileScannerController();
+
+  late final StreamSubscription<Object?>? _subscription;
 
   @override
   void initState() {
     super.initState();
 
-    controller.start();
-    controller.start();
+    WidgetsBinding.instance.addObserver(this);
 
-    controller.barcodes.listen(_handleBarcode);
+    controller.start();
+    controller.start();
+    initializeController();
+  }
+
+  void initializeController() {
+    _subscription = controller.barcodes.listen(_handleBarcode);
+    controller.start();
   }
 
   void _handleBarcode(BarcodeCapture event) {
@@ -42,23 +52,27 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
     widget.onScanned(barcode);
   }
 
-  Widget _buildScanWindow(Rect scanWindowRect) {
-    return ValueListenableBuilder(
-      valueListenable: controller,
-      builder: (context, value, child) {
-        // Not ready.
-        if (!value.isInitialized ||
-            !value.isRunning ||
-            value.error != null ||
-            value.size.isEmpty) {
-          return const SizedBox();
-        }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
 
-        return CustomPaint(
-          painter: ScannerOverlay(scanWindowRect),
-        );
-      },
-    );
+    switch (state) {
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        return;
+      case AppLifecycleState.resumed:
+        // Restart the scanner when the app is resumed.
+        print('App resumed');
+      //initializeController();
+
+      case AppLifecycleState.inactive:
+        print('App inactive');
+        // Stop the scanner when the app is paused.
+        unawaited(_subscription?.cancel());
+        _subscription = null;
+        unawaited(controller.stop());
+    }
   }
 
   @override
@@ -128,6 +142,25 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildScanWindow(Rect scanWindowRect) {
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, value, child) {
+        // Not ready.
+        if (!value.isInitialized ||
+            !value.isRunning ||
+            value.error != null ||
+            value.size.isEmpty) {
+          return const SizedBox();
+        }
+
+        return CustomPaint(
+          painter: ScannerOverlay(scanWindowRect),
+        );
+      },
     );
   }
 
