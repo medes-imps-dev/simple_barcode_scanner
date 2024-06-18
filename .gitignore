@@ -46,3 +46,8 @@ macos/
 # ------------------------------------------------------------
 
 # Files that are specific to this project can be written below
+# FVM Cache
+.fvm/
+
+# FVM configuration file 
+.fvmrc
