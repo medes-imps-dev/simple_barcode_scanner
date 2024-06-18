@@ -41,13 +41,14 @@ linux/
 web/
 macos/
 
-# ------------------------------------------------------------
-# [END] DO NOT MODIFY THESE LINES
-# ------------------------------------------------------------
-
-# Files that are specific to this project can be written below
 # FVM Cache
 .fvm/
 
 # FVM configuration file 
 .fvmrc
+
+# ------------------------------------------------------------
+# [END] DO NOT MODIFY THESE LINES
+# ------------------------------------------------------------
+
+# Files that are specific to this project can be written below
