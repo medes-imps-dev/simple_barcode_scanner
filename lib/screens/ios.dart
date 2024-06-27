@@ -44,10 +44,10 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
   void _handleBarcode(BarcodeCapture event) {
     final barcode = event.barcodes.firstOrNull?.rawValue;
     if (barcode == null) {
-      print('barcode is null');
+      debugPrint('SIMPLE SCANNER : barcode is null');
       return;
     }
-    print('Barcode detected: $barcode');
+    debugPrint('SIMPLE SCANNER : Barcode detected: $barcode');
     widget.onScanned(barcode);
   }
 
@@ -62,11 +62,11 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
         return;
       case AppLifecycleState.resumed:
         // Restart the scanner when the app is resumed.
-        print('App resumed');
+        debugPrint('SIMPLE SCANNER : App is resumed');
       //initializeController();
 
       case AppLifecycleState.inactive:
-        print('App inactive');
+        debugPrint('SIMPLE SCANNER : App is inactive');
         // Stop the scanner when the app is paused.
         _subscription?.cancel();
         _subscription = null;
@@ -166,7 +166,7 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
   @override
   Future<void> dispose() async {
     await controller.dispose();
-    print('Controller is disposed');
+    debugPrint('SIMPLE SCANNER : IOS Barcode controller is disposed');
     super.dispose();
   }
 }
