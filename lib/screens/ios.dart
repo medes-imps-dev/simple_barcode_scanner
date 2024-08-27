@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+const marginScanWindow = 200.0;
+
 class IosBarcodeScanner extends StatefulWidget {
   const IosBarcodeScanner({
     super.key,
@@ -82,8 +84,8 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
     final scanWindow = Rect.fromCenter(
       center: const Offset(heightFullScreen / 2, widthFullScreen / 2),
       // Size of the clear area where we can scan
-      width: heightFullScreen * 0.8,
-      height: widthFullScreen * 0.8,
+      width: heightFullScreen - marginScanWindow,
+      height: widthFullScreen - marginScanWindow,
     );
 
     return SizedBox(
@@ -114,13 +116,13 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
               ),
             );
           }),
-          //_buildBarcodeOverlay(),
           _buildScanWindow(scanWindow),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
               alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               height: 50,
               color: Colors.black.withOpacity(0.4),
               child: StreamBuilder<BarcodeCapture>(
@@ -179,7 +181,8 @@ class ScannerOverlay extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // we need to pass the size to the custom paint widget
-    final backgroundPath = Path()..addRect(Rect.largest);
+    final backgroundPath = Path()
+      ..addRect(scanWindow.inflate(marginScanWindow / 2));
     final cutoutPath = Path()..addRect(scanWindow);
 
     final backgroundPaint = Paint()
@@ -192,6 +195,7 @@ class ScannerOverlay extends CustomPainter {
       backgroundPath,
       cutoutPath,
     );
+
     canvas.drawPath(backgroundWithCutout, backgroundPaint);
   }
 
