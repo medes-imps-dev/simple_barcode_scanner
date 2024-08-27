@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -94,6 +95,7 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
       child: Stack(
         fit: StackFit.expand,
         children: [
+          const CupertinoActivityIndicator(),
           OrientationBuilder(builder: (context, orientation) {
             final int quarterTurns;
             DeviceOrientation.landscapeLeft;
@@ -121,8 +123,7 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
             alignment: Alignment.bottomCenter,
             child: Container(
               alignment: Alignment.center,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               height: 50,
               color: Colors.black.withOpacity(0.4),
               child: StreamBuilder<BarcodeCapture>(
