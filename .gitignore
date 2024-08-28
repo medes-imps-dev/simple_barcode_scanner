@@ -47,6 +47,8 @@ macos/
 # FVM configuration file 
 .fvmrc
 
+example/pubspec.lock
+
 # ------------------------------------------------------------
 # [END] DO NOT MODIFY THESE LINES
 # ------------------------------------------------------------

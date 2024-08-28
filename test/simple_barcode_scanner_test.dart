@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
@@ -6,6 +7,8 @@ void main() {
     SimpleBarcodeScannerPage(
         widthCamera: 500,
         heightCamera: 500,
-        onScanned: (barcode) => print(barcode));
+        onScanned: (barcode) {
+          debugPrint('SIMPLE SCANNER (test) : Scanned barcode : $barcode');
+        });
   });
 }

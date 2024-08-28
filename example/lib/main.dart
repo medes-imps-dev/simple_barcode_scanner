@@ -45,7 +45,10 @@ class _HomePageState extends State<HomePage> {
                       builder: (context) => SimpleBarcodeScannerPage(
                         widthCamera: 500,
                         heightCamera: 500,
-                        onScanned: (barcode) => print(barcode),
+                        onScanned: (barcode) {
+                          // We do not use a logger for this library
+                          debugPrint('SIMPLE SCANNER : Barcode scanned : $barcode');
+                        },
                       ),
                     ));
                 setState(() {

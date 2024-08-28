@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+
+const marginScanWindow = 200.0;
 
 class IosBarcodeScanner extends StatefulWidget {
   const IosBarcodeScanner({
@@ -35,19 +38,18 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
     initializeController();
   }
 
-  void initializeController() {
+  void initializeController() async {
     _subscription = controller.barcodes.listen(_handleBarcode);
-    controller.start();
-    controller.start();
+    await controller.start();
   }
 
   void _handleBarcode(BarcodeCapture event) {
     final barcode = event.barcodes.firstOrNull?.rawValue;
     if (barcode == null) {
-      print('barcode is null');
+      debugPrint('SIMPLE SCANNER : barcode is null');
       return;
     }
-    print('Barcode detected: $barcode');
+    debugPrint('SIMPLE SCANNER : Barcode detected: $barcode');
     widget.onScanned(barcode);
   }
 
@@ -62,11 +64,11 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
         return;
       case AppLifecycleState.resumed:
         // Restart the scanner when the app is resumed.
-        print('App resumed');
+        debugPrint('SIMPLE SCANNER : App is resumed');
       //initializeController();
 
       case AppLifecycleState.inactive:
-        print('App inactive');
+        debugPrint('SIMPLE SCANNER : App is inactive');
         // Stop the scanner when the app is paused.
         _subscription?.cancel();
         _subscription = null;
@@ -82,8 +84,8 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
     final scanWindow = Rect.fromCenter(
       center: const Offset(heightFullScreen / 2, widthFullScreen / 2),
       // Size of the clear area where we can scan
-      width: heightFullScreen * 0.8,
-      height: widthFullScreen * 0.8,
+      width: heightFullScreen - marginScanWindow,
+      height: widthFullScreen - marginScanWindow,
     );
 
     return SizedBox(
@@ -92,6 +94,7 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
       child: Stack(
         fit: StackFit.expand,
         children: [
+          const CupertinoActivityIndicator(),
           OrientationBuilder(builder: (context, orientation) {
             final int quarterTurns;
             DeviceOrientation.landscapeLeft;
@@ -114,7 +117,6 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
               ),
             );
           }),
-          //_buildBarcodeOverlay(),
           _buildScanWindow(scanWindow),
           Align(
             alignment: Alignment.bottomCenter,
@@ -165,8 +167,11 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
 
   @override
   Future<void> dispose() async {
-    super.dispose();
+    await controller.stop();
     await controller.dispose();
+    await _subscription?.cancel();
+    debugPrint('SIMPLE SCANNER : IOS Barcode controller is disposed');
+    super.dispose();
   }
 }
 
@@ -178,7 +183,8 @@ class ScannerOverlay extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // we need to pass the size to the custom paint widget
-    final backgroundPath = Path()..addRect(Rect.largest);
+    final backgroundPath = Path()
+      ..addRect(scanWindow.inflate(marginScanWindow / 2));
     final cutoutPath = Path()..addRect(scanWindow);
 
     final backgroundPaint = Paint()
@@ -191,6 +197,7 @@ class ScannerOverlay extends CustomPainter {
       backgroundPath,
       cutoutPath,
     );
+
     canvas.drawPath(backgroundWithCutout, backgroundPaint);
   }
 
