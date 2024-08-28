@@ -40,7 +40,8 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
 
   void initializeController() async {
     _subscription = controller.barcodes.listen(_handleBarcode);
-    await controller.start();
+    controller.start();
+    controller.start();
   }
 
   void _handleBarcode(BarcodeCapture event) {
@@ -65,7 +66,7 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
       case AppLifecycleState.resumed:
         // Restart the scanner when the app is resumed.
         debugPrint('SIMPLE SCANNER : App is resumed');
-      //initializeController();
+        initializeController();
 
       case AppLifecycleState.inactive:
         debugPrint('SIMPLE SCANNER : App is inactive');
@@ -118,29 +119,6 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
             );
           }),
           _buildScanWindow(scanWindow),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              height: 50,
-              color: Colors.black.withOpacity(0.4),
-              child: StreamBuilder<BarcodeCapture>(
-                  stream: controller.barcodes,
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.none:
-                      case ConnectionState.waiting:
-                        return const Text('No barcode detected');
-                      case ConnectionState.active:
-                      case ConnectionState.done:
-                        return Text(
-                            snapshot.data?.barcodes.firstOrNull?.rawValue ??
-                                '');
-                    }
-                  }),
-            ),
-          ),
         ],
       ),
     );
