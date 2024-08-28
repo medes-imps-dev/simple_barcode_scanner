@@ -38,10 +38,9 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
     initializeController();
   }
 
-  void initializeController() {
+  void initializeController() async {
     _subscription = controller.barcodes.listen(_handleBarcode);
-    controller.start();
-    controller.start();
+    await controller.start();
   }
 
   void _handleBarcode(BarcodeCapture event) {
@@ -168,7 +167,9 @@ class _IosBarcodeScannerState extends State<IosBarcodeScanner>
 
   @override
   Future<void> dispose() async {
+    await controller.stop();
     await controller.dispose();
+    await _subscription?.cancel();
     debugPrint('SIMPLE SCANNER : IOS Barcode controller is disposed');
     super.dispose();
   }

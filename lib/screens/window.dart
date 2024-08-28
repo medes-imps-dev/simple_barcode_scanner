@@ -7,7 +7,7 @@ import 'package:simple_barcode_scanner/constant.dart';
 import 'package:simple_barcode_scanner/enum.dart';
 import 'package:webview_windows/webview_windows.dart';
 
-class WindowBarcodeScanner extends StatelessWidget {
+class WindowBarcodeScanner extends StatefulWidget {
   final String lineColor;
   final String cancelButtonText;
   final bool isShowFlashIcon;
@@ -28,8 +28,20 @@ class WindowBarcodeScanner extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<WindowBarcodeScanner> createState() => _WindowBarcodeScannerState();
+}
+
+class _WindowBarcodeScannerState extends State<WindowBarcodeScanner> {
+  final controller = WebviewController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    WebviewController controller = WebviewController();
     bool isPermissionGranted = false;
 
     _checkCameraPermission().then((granted) {
@@ -130,7 +142,7 @@ class WindowBarcodeScanner extends StatelessWidget {
         if (event['methodName'] == "successCallback") {
           if (event['data'] is String && event['data'].isNotEmpty) {
             barcodeNumber = event['data'];
-            onScanned(barcodeNumber!);
+            widget.onScanned(barcodeNumber!);
           }
         }
       });
