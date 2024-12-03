@@ -42,45 +42,38 @@ class _WindowBarcodeScannerState extends State<WindowBarcodeScanner> {
 
   @override
   Widget build(BuildContext context) {
-    bool isPermissionGranted = false;
-
-    _checkCameraPermission().then((granted) {
-      debugPrint("Permission is $granted");
-      isPermissionGranted = granted;
-    });
-
     return FutureBuilder<bool>(
-      future: initPlatformState(
-        controller: controller,
-      ),
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
-          return Webview(
-            controller,
-            permissionRequested: (url, permissionKind, isUserInitiated) =>
-                _onPermissionRequested(
-              url: url,
-              kind: permissionKind,
-              isUserInitiated: isUserInitiated,
-              context: context,
-              isPermissionGranted: isPermissionGranted,
+            future: initPlatformState(
+              controller: controller,
             ),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                return Webview(
+                  controller,
+                  permissionRequested: (url, permissionKind, isUserInitiated) =>
+                      _onPermissionRequested(
+                    url: url,
+                    kind: permissionKind,
+                    isUserInitiated: isUserInitiated,
+                    context: context,
+                    isPermissionGranted: true,
+                  ),
+                );
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Text(snapshot.error.toString()),
+                );
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            },
           );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text(snapshot.error.toString()),
-          );
-        }
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
   }
 
   /// Checks if camera permission has already been granted
   Future<bool> _checkCameraPermission() async {
-    return await Permission.camera.status.isGranted;
+    return await Permission.camera.isGranted;
   }
 
   Future<WebviewPermissionDecision> _onPermissionRequested(
