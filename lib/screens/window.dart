@@ -71,11 +71,6 @@ class _WindowBarcodeScannerState extends State<WindowBarcodeScanner> {
           );
   }
 
-  /// Checks if camera permission has already been granted
-  Future<bool> _checkCameraPermission() async {
-    return await Permission.camera.isGranted;
-  }
-
   Future<WebviewPermissionDecision> _onPermissionRequested(
       {required String url,
       required WebviewPermissionKind kind,
