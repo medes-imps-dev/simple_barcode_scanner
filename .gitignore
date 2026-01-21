@@ -47,6 +47,9 @@ macos/
 # FVM configuration file 
 .fvmrc
 
+# VSCode
+.vscode
+
 example/pubspec.lock
 
 # ------------------------------------------------------------
