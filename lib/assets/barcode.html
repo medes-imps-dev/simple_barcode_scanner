@@ -18,6 +18,14 @@
         body {
             height: 100%;
             /* IMPORTANT!!! Stretches viewport to 100% */
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* Centered in the window by fitReader() */
+        #reader {
+            transform-origin: 0 0;
         }
     </style>
     <script src="html5-qrcode.min.js"></script>
@@ -71,9 +79,106 @@
             }
         };
 
-        html5QrCode.start({
+        // Forwarded to the app's console: the webview's own is out of sight.
+        const log = (message) => {
+            console.log(message);
+            if (window.chrome.webview != undefined) {
+                window.chrome.webview.postMessage({
+                    "methodName": "log",
+                    "data": String(message)
+                });
+            }
+        };
+
+        // The library sizes the video in pixels to the reader's width once, at
+        // start, and centers the scan box in it. The video is centered in the
+        // window, at its own size: the scan box keeps the same size and place
+        // in portrait as in landscape, and what overflows is cut off.
+        const reader = document.getElementById("reader");
+        reader.style.width = window.innerWidth + "px";
+        const fitReader = () => {
+            const video = reader.querySelector("video");
+            const width = video ? video.offsetWidth : 0;
+            const height = video ? video.offsetHeight : 0;
+            if (!width || !height) {
+                return;
+            }
+            const left = (window.innerWidth - width) / 2;
+            const top = (window.innerHeight - height) / 2;
+            reader.style.transform = "translate(" + left + "px, " + top
+                + "px)";
+        };
+        window.addEventListener("resize", fitReader);
+
+        // The library lays out the scan box, and the region it scans, for the
+        // image it started with: once the device turned, the camera sends
+        // its image the other way round and the box would stretch with it.
+        // The scan is started again, to be laid out for the new image.
+        let restarting = false;
+        const restartScan = () => {
+            if (restarting) {
+                return;
+            }
+            restarting = true;
+            log("camera image turned, restarting the scan");
+            Promise.resolve()
+                .then(() => html5QrCode.stop())
+                .catch((e) => log("stop failed: " + e))
+                .then(() => {
+                    reader.style.width = window.innerWidth + "px";
+                    return startScan();
+                })
+                .finally(() => restarting = false);
+        };
+
+        // A video track that ends or goes mute is a preview left black.
+        const watchTrack = () => {
+            const video = document.querySelector("#reader video");
+            if (video) {
+                let portrait = video.videoWidth && video.videoHeight
+                    ? video.videoHeight > video.videoWidth
+                    : null;
+                video.addEventListener("resize", () => {
+                    if (!video.videoWidth || !video.videoHeight) {
+                        return;
+                    }
+                    const isPortrait = video.videoHeight > video.videoWidth;
+                    if (portrait === null) {
+                        portrait = isPortrait;
+                    } else if (isPortrait !== portrait) {
+                        restartScan();
+                        return;
+                    }
+                    fitReader();
+                });
+            }
+            fitReader();
+            const track = video && video.srcObject
+                && video.srcObject.getVideoTracks()[0];
+            if (!track) {
+                log("started, but no video track");
+                return;
+            }
+            log("started: " + track.label + " (" + track.readyState + ")");
+            track.onended = () => log("video track ended");
+            track.onmute = () => log("video track muted");
+            track.onunmute = () => log("video track unmuted");
+        };
+
+        const startScan = (attempt = 1) => html5QrCode.start({
             facingMode: {exact: "environment"}
-        }, config, qrCodeSuccessCallback);
+        }, config, qrCodeSuccessCallback).then(watchTrack, (e) => {
+            log("start failed (attempt " + attempt + "): " + e);
+            // Back from a screen that used the camera, the webcam may not be
+            // released yet: give it a few seconds.
+            if (attempt >= 10) {
+                return;
+            }
+            return new Promise((resolve) => setTimeout(resolve, 500))
+                .then(() => startScan(attempt + 1));
+        });
+
+        startScan();
 
         //Window event listener
         if (window.chrome.webview != undefined) {

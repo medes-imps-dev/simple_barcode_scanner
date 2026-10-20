@@ -16,6 +16,7 @@ class BarcodeScanner extends StatelessWidget {
   final bool? centerTitle;
   final double widthCamera;
   final double heightCamera;
+  final bool paused;
   const BarcodeScanner({
     Key? key,
     required this.lineColor,
@@ -27,6 +28,7 @@ class BarcodeScanner extends StatelessWidget {
     required this.widthCamera,
     this.appBarTitle,
     this.centerTitle,
+    this.paused = false,
   }) : super(key: key);
 
   @override
@@ -45,6 +47,7 @@ class BarcodeScanner extends StatelessWidget {
           onScanned: onScanned,
           appBarTitle: appBarTitle,
           centerTitle: centerTitle,
+          paused: paused,
         ),
       );
     } else if (Platform.isIOS) {

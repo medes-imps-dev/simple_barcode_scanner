@@ -15,6 +15,10 @@ class WindowBarcodeScanner extends StatefulWidget {
   final String? appBarTitle;
   final bool? centerTitle;
 
+  /// Stops the scan and releases the webcam, which Windows lets only one
+  /// client hold: a camera screen opened on top could not get it otherwise.
+  final bool paused;
+
   const WindowBarcodeScanner({
     Key? key,
     required this.lineColor,
@@ -24,6 +28,7 @@ class WindowBarcodeScanner extends StatefulWidget {
     required this.onScanned,
     this.appBarTitle,
     this.centerTitle,
+    this.paused = false,
   }) : super(key: key);
 
   @override
@@ -32,6 +37,36 @@ class WindowBarcodeScanner extends StatefulWidget {
 
 class _WindowBarcodeScannerState extends State<WindowBarcodeScanner> {
   final controller = WebviewController();
+
+  /// Created once: built in [build], every rebuild would initialize the
+  /// webview again and restart the camera.
+  late final Future<bool> _ready = initPlatformState(controller: controller);
+
+  /// Pause and resume, one after the other: a resume sent while the pause is
+  /// still navigating must not be overtaken by it.
+  Future<void> _transition = Future.value();
+
+  @override
+  void didUpdateWidget(covariant WindowBarcodeScanner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.paused == oldWidget.paused) {
+      return;
+    }
+    final paused = widget.paused;
+    debugPrint('SIMPLE SCANNER : ${paused ? 'pause' : 'resume'}');
+    // The page is left rather than its scanner stopped: unloading it is what
+    // surely releases the webcam, and a fresh load starts the scan from a
+    // clean state instead of restarting one that already ran.
+    _transition = _transition
+        .then((_) => _ready)
+        .then((_) => controller.loadUrl(
+              paused ? 'about:blank' : _scannerUrl,
+            ))
+        .catchError((Object e) => debugPrint('SIMPLE SCANNER : $e'));
+  }
+
+  String get _scannerUrl =>
+      getAssetFileUrl(asset: PackageConstant.barcodeFilePath);
 
   @override
   void dispose() {
@@ -42,9 +77,7 @@ class _WindowBarcodeScannerState extends State<WindowBarcodeScanner> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-            future: initPlatformState(
-              controller: controller,
-            ),
+            future: _ready,
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data != null) {
                 return Webview(
@@ -121,12 +154,13 @@ class _WindowBarcodeScannerState extends State<WindowBarcodeScanner> {
 
     try {
       await controller.initialize();
-      await controller
-          .loadUrl(getAssetFileUrl(asset: PackageConstant.barcodeFilePath));
+      await controller.loadUrl(_scannerUrl);
 
       /// Listen to web to receive barcode
       controller.webMessage.listen((event) {
-        if (event['methodName'] == "successCallback") {
+        if (event['methodName'] == "log") {
+          debugPrint('SIMPLE SCANNER : ${event['data']}');
+        } else if (event['methodName'] == "successCallback") {
           if (event['data'] is String && event['data'].isNotEmpty) {
             barcodeNumber = event['data'];
             widget.onScanned(barcodeNumber!);

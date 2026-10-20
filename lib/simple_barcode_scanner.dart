@@ -34,6 +34,10 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
   ///Width of camera
   final double widthCamera;
 
+  ///Releases the camera while true, so another screen can open it. Windows
+  ///only: the webcam cannot be shared between the scanner and the app
+  final bool paused;
+
   /// appBatTitle and centerTitle support in web and window only
   /// Remaining field support in only mobile devices
   const SimpleBarcodeScannerPage({
@@ -47,6 +51,7 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
     required this.onScanned,
     required this.heightCamera,
     required this.widthCamera,
+    this.paused = false,
   }) : super(key: key);
 
   @override
@@ -61,6 +66,7 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
       onScanned: onScanned,
       heightCamera: heightCamera,
       widthCamera: widthCamera,
+      paused: paused,
     );
   }
 }
